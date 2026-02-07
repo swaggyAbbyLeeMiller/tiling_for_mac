@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  WinSnap
-//
-//  Created by alexa neff on 1/31/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
@@ -22,3 +15,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+

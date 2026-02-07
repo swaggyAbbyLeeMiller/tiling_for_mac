@@ -1,10 +1,5 @@
-//
-//  HotKeyTap.swift
-//  WinSnap
-//
-//  Created by alexa neff on 2/7/26.
-
 import Cocoa
+import SwiftUI
 
 final class HotKeyTap {
     private var eventTap: CFMachPort?
@@ -17,22 +12,43 @@ final class HotKeyTap {
             place: .headInsertEventTap,
             options: .defaultTap,
             eventsOfInterest: CGEventMask(mask),
-            callback: { _, type, event, _ in
+            callback: { _, _, event, _ in
                 let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
                 let flags = event.flags
 
-                if flags.contains(.maskCommand) && keyCode == 123 {
-                    print("CMD + LEFT")
+                if flags.contains(.maskCommand) {
+                    DispatchQueue.main.async {
+                        switch keyCode {
+                        case 123: // Left Arrow
+                            print("CMD + LEFT detected")
+                            snapLeft()
+                        case 124: // Right Arrow
+                            print("CMD + RIGHT detected")
+                            snapRight()
+                        case 125: // Down Arrow
+                            print("CMD + DOWN detected")
+                            snapDown()
+                        case 126: // Up Arrow
+                            print("CMD + UP detected")
+                            snapUp()
+                        default:
+                            break
+                        }
+                    }
                 }
 
-                return Unmanaged.passRetained(event)
+                return Unmanaged.passUnretained(event)
             },
             userInfo: nil
         )
 
-        let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
-        CGEvent.tapEnable(tap: eventTap!, enable: true)
+        if let eventTap = eventTap {
+            let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+            CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
+            CGEvent.tapEnable(tap: eventTap, enable: true)
+        } else {
+            print("Failed to create event tap")
+        }
     }
 }
 
